@@ -3,14 +3,14 @@ import { ref } from "vue"
 import { QrcodeStream } from "vue-qrcode-reader"
 let errorMessage = ref("")
 
-const onReady = capabilities => {
-  // console.log(capabilities)
+const onReady = (capabilities: any) => {
+  console.log(capabilities)
 }
-const onDetect = detectedCodes => {
+const onDetect = (detectedCodes: any) => {
   console.log(detectedCodes)
 }
 
-const onError = error => {
+const onError = (error: any) => {
   if (error.name === "NotAllowedError") {
     errorMessage.value = "user denied camera access permission"
   } else if (error.name === "NotFoundError") {
