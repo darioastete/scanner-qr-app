@@ -9,7 +9,7 @@ const onReady = (capabilities: any) => {
 }
 const onDetect = (detectedCodes: any) => {
   codeDetected.value = JSON.stringify(detectedCodes[0].rawValue)
-  console.log(JSON.stringify(codeDetected))
+  alert(codeDetected.value)
 }
 
 const onError = (error: any) => {
