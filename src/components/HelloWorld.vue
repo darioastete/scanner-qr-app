@@ -1,0 +1,42 @@
+<script setup lang="ts">
+import { ref } from "vue"
+import { QrcodeStream } from "vue-qrcode-reader"
+let errorMessage = ref("")
+
+const onReady = capabilities => {
+  // console.log(capabilities)
+}
+const onDetect = detectedCodes => {
+  console.log(detectedCodes)
+}
+
+const onError = error => {
+  if (error.name === "NotAllowedError") {
+    errorMessage.value = "user denied camera access permission"
+  } else if (error.name === "NotFoundError") {
+    errorMessage.value = "no suitable camera device installed"
+  } else if (error.name === "NotSupportedError") {
+    errorMessage.value = "page is not served over HTTPS (or localhost)"
+  } else if (error.name === "NotReadableError") {
+    errorMessage.value = "maybe camera is already in use"
+  } else if (error.name === "OverconstrainedError") {
+    errorMessage.value =
+      "did you request the front camera although there is none?"
+  } else if (error.name === "StreamApiNotSupportedError") {
+    errorMessage.value = "browser seems to be lacking features"
+  }
+}
+
+defineProps<{ msg: string }>()
+</script>
+
+<template>
+  <h1>{{ msg }}</h1>
+  <h1>Este es el error: {{ errorMessage }}</h1>
+  <qrcode-stream
+    :formats="['qr_code', 'code_128']"
+    @camera-on="onReady"
+    @detect="onDetect"
+    @error="onError"
+  ></qrcode-stream>
+</template>
