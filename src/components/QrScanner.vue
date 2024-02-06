@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { QrcodeStream } from "vue-qrcode-reader"
-let errorMessage = ref("")
-let codeDetected = ref("")
+let errorMessage = ref()
+let codeDetected = ref()
 
 const onReady = (capabilities: any) => {
   console.log(capabilities)

@@ -4,6 +4,9 @@ export default {
   darkMode: false,
   theme: {
     extend: {},
+    fontFamily: {
+      raleway: ["Raleway", "sans-serif"],
+    },
   },
   plugins: [],
 }
