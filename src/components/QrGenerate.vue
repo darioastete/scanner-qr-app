@@ -3,6 +3,7 @@
 import vueQr from "vue-qr/src/packages/vue-qr.vue"
 import src2 from "../assets/vue.svg"
 import { ref } from "vue"
+import iQR from "../assets/icons/qr-white.svg"
 const { fullName } = defineProps<{
   fullName?: string
   id?: number
@@ -32,8 +33,11 @@ const descargarImagen = () => {
       :qid="'testid'"
       :size="500"
     ></vue-qr>
-    <button @click="descargarImagen" class="bg-blue-950 p-3 text-white">
-      Descargar QR
+    <button
+      @click="descargarImagen"
+      class="bg-primary-violet-300 p-3 text-white"
+    >
+      <img :src="iQR" class="max-w-none" />
     </button>
   </div>
 </template>

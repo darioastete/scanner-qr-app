@@ -33,9 +33,9 @@ defineProps<{ msg: string }>()
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+  <!-- <h1>{{ msg }}</h1>
   <h1>Este es el error: {{ errorMessage }}</h1>
-  <h2><strong>QR VALUE: </strong>{{ codeDetected }}</h2>
+  <h2><strong>QR VALUE: </strong>{{ codeDetected }}</h2> -->
   <qrcode-stream
     :formats="['qr_code', 'code_128']"
     @camera-on="onReady"

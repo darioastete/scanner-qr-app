@@ -4,8 +4,13 @@ import { createRouter, createWebHashHistory } from "vue-router"
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
+    component: () => import("./views/ScanView.vue"),
+    name: "ScanView",
+  },
+  {
+    path: "/scan",
     component: () => import("./views/QrListView.vue"),
-    name: "ScannerView",
+    name: "QrListView",
   },
 ]
 const router = createRouter({
