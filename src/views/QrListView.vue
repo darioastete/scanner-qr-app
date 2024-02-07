@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import { onMounted, ref } from "vue"
 import QrGenerate from "../components/QrGenerate.vue"
 import iTrash from "../assets/icons/trash-white.svg"
 import iSearch from "../assets/icons/search-gray.svg"
@@ -8,7 +8,7 @@ import UModal from "../components/UModal.vue"
 import { required, helpers, minLength } from "@vuelidate/validators"
 import { useVuelidate } from "@vuelidate/core"
 import { formatDate, onlyText } from "../utils/regInputs"
-import { createEvent } from "../services/eventService"
+import { createEvent, getAll } from "../services/eventService"
 import { EventRequest } from "../types/event.request"
 
 const clientList = [
@@ -32,7 +32,7 @@ const regexText = helpers.regex(onlyText())
 
 const formEvent = ref<EventRequest>({
   name: "",
-  dateEvent: new Date(),
+  dateEvent: "",
 })
 
 const rules = {
@@ -95,6 +95,11 @@ const openClientModal = () => {
 const submitEvent = async () => {
   await createEvent(formEvent.value)
 }
+
+onMounted(async () => {
+  const response = await getAll()
+  console.log(response)
+})
 </script>
 <template>
   <!-- <div class="w-3/4 lg:w-1/4 mx-2 my-2"> -->
