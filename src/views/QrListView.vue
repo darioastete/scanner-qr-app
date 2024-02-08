@@ -112,7 +112,8 @@ const openClientModal = () => {
 const submitEvent = async () => {
   loading.value = true
   await createEvent(formEvent.value)
-  await getAll()
+  const response = await getAll()
+  eventList.value = response
   closeEventModal()
   formEvent.value = {
     name: "",
