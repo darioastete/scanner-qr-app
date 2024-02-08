@@ -8,7 +8,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "ScanView",
   },
   {
-    path: "/scan",
+    path: "/qrlistadmin",
     component: () => import("./views/QrListView.vue"),
     name: "QrListView",
   },
