@@ -3,7 +3,7 @@ const formatDate = (): RegExp => {
 }
 
 const onlyText = (): RegExp => {
-  return /^[a-zA-Z\s]+$/
+  return /^[a-zA-Z0-9\s]+$/
 }
 
 const onlyNumber = (): RegExp => {
