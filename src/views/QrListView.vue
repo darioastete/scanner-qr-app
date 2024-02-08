@@ -124,11 +124,12 @@ onMounted(async () => {
     </div>
     <div class="flex gap-2 pr-3">
       <select
-        class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
+        class="block w-60 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
         @change="getClients"
+        placeholder="Seleccione..."
         v-model="eventSelected"
       >
-        <option selected disabled>Seleccione ...</option>
+        <option :value="0" selected disabled>Seleccione ...</option>
         <option
           v-for="(event, index) in eventList"
           :key="index"
@@ -182,14 +183,16 @@ onMounted(async () => {
             </th>
             <td
               :class="`px-6 py-4 text-center ${
-                row.status ? 'text-white' : 'text-white'
+                !row.confirmAssistance ? 'text-white' : 'text-white'
               }`"
             >
               <span
                 :class="` py-1 px-4 rounded-full  ${
-                  row.status ? 'bg-primary-violet-100' : 'bg-gray-600'
+                  !row.confirmAssistance
+                    ? 'bg-primary-violet-100'
+                    : 'bg-gray-600'
                 }`"
-                >{{ row.status ? "Inválido" : "Válido" }}</span
+                >{{ !row.confirmAssistance ? "Válido" : "Usado" }}</span
               >
             </td>
             <td class="px-6 py-4">
