@@ -7,26 +7,53 @@ import iPlus from "../assets/icons/plus-white.svg"
 import UModal from "../components/UModal.vue"
 import { required, helpers, minLength } from "@vuelidate/validators"
 import { useVuelidate } from "@vuelidate/core"
-import { formatDate, onlyText } from "../utils/regInputs"
+import { formatDate, onlyText, onlyNumber } from "../utils/regInputs"
 import { createEvent, getAll } from "../services/eventService"
-import { getClientsByEventIdService } from "../services/clientService"
+import {
+  createClient,
+  getClientsByEventIdService,
+} from "../services/clientService"
 import { EventRequest } from "../types/event.request"
 import { ClientResponse } from "../types/client.response"
+import { ClientRequest } from "../types/client.request"
 
-let clientList = ref<ClientResponse[] | []>([])
+const clientList = ref<ClientResponse[] | []>([])
 
-let filteredList = ref<ClientResponse[] | []>([])
-let eventList = ref()
-let clientSelect = ref()
-let eventSelected = ref<Number>(0)
+const filteredList = ref<ClientResponse[] | []>([])
+const eventList = ref()
+const clientSelect = ref()
+const eventSelected = ref<Number>(0)
+const loading = ref(false)
 
 const regexDate = helpers.regex(formatDate())
 const regexText = helpers.regex(onlyText())
+const regexNumber = helpers.regex(onlyNumber())
 
 const formEvent = ref<EventRequest>({
   name: "",
   dateEvent: "",
 })
+
+const formClient = ref<ClientRequest>({
+  name: "",
+  numberDocument: "",
+  eventId: 0,
+})
+
+const rulesClient = {
+  name: {
+    required,
+    minLength: minLength(3),
+    regexText,
+    $autoDirty: true,
+  },
+  numberDocument: {
+    minLength: minLength(7),
+    required,
+    regexNumber,
+    $autoDirty: true,
+  },
+}
 
 const rules = {
   name: {
@@ -43,6 +70,7 @@ const rules = {
 }
 
 const v$ = useVuelidate(rules, formEvent)
+const client$ = useVuelidate(rulesClient, formClient)
 
 const handleOnInput = ($event: any) => {
   const searchValue = $event.target.value.toLowerCase()
@@ -85,12 +113,29 @@ const openClientModal = () => {
 }
 
 const submitEvent = async () => {
+  loading.value = true
   await createEvent(formEvent.value)
+  await getAll()
   closeEventModal()
   formEvent.value = {
     name: "",
     dateEvent: "",
   }
+  loading.value = false
+}
+
+const submitClient = async () => {
+  loading.value = true
+  formClient.value.eventId = eventSelected.value
+  await createClient(formClient.value)
+  await getClients()
+  closeClientModal()
+  formClient.value = {
+    name: "",
+    numberDocument: "",
+    eventId: 0,
+  }
+  loading.value = false
 }
 
 const getClients = async () => {
@@ -148,6 +193,7 @@ onMounted(async () => {
       </button>
       <button
         @click="openClientModal"
+        v-if="eventSelected != 0"
         class="flex items-center gap-2 bg-primary-violet-100 text-white py-3 px-5 rounded-xl"
       >
         <img :src="iPlus" />
@@ -177,7 +223,7 @@ onMounted(async () => {
             <td class="text-center font-semibold">{{ index + 1 }}</td>
             <th
               scope="row"
-              class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+              class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap uppercase"
             >
               {{ row.name }}
             </th>
@@ -226,78 +272,84 @@ onMounted(async () => {
     :model-value="isOpenSaleOptionsModal"
     @on-close="closeSaleOptionsModal"
     @update:model-value="closeSaleOptionsModal"
-    title="¿Estas Seguro?"
+    :title="!loading ? '¿Estas Seguro?' : ''"
   >
     <template v-slot:main>
-      <span class="text-center text-sm"
-        >Se eliminará al cliente definitivamente de la lista</span
-      >
-      <div class="flex gap-4 justify-center">
-        <button
-          class="px-5 py-2 text-white rounded-lg bg-primary-gray-300"
-          @click="closeSaleOptionsModal"
+      <template v-if="!loading">
+        <span class="text-center text-sm"
+          >Se eliminará al cliente definitivamente de la lista</span
         >
-          Cancelar
-        </button>
-        <button
-          class="px-5 py-2 text-white rounded-lg bg-primary-violet-100"
-          @click="deleteClientList"
-        >
-          Confirmar
-        </button>
-      </div>
+        <div class="flex gap-4 justify-center">
+          <button
+            class="px-5 py-2 text-white rounded-lg bg-primary-gray-300"
+            @click="closeSaleOptionsModal"
+          >
+            Cancelar
+          </button>
+          <button
+            class="px-5 py-2 text-white rounded-lg bg-primary-violet-100"
+            @click="deleteClientList"
+          >
+            Confirmar
+          </button>
+        </div>
+      </template>
+      <template v-else> Cargando... </template>
     </template>
   </UModal>
   <UModal
     :model-value="isOpenEventModal"
     @on-close="closeEventModal"
     @update:model-value="closeEventModal"
-    title="Crear Evento"
+    :title="!loading ? 'Crear Evento' : ''"
   >
     <template v-slot:main>
-      <form @submit.prevent="submitEvent">
-        <div class="mb-5">
-          <label for="eventInput" class="text-sm ml-1 text-gray-500"
-            >Evento :
-          </label>
-          <input
-            id="eventInput"
-            type="text"
-            v-model="formEvent.name"
-            :class="`block w-full p-4 ps-10 text-sm text-gray-900 border  rounded-lg bg-gray-50 focus:ring-black focus:border-black ${
-              v$.name.$error ? 'border-red-600' : 'border-gray-300'
-            }`"
-            placeholder="Nombre del evento"
-          />
-        </div>
-        <div class="">
-          <label for="eventInput" class="text-sm ml-1 text-gray-500"
-            >Fecha :
-          </label>
-          <input
-            type="date"
-            v-model="formEvent.dateEvent"
-            :class="`block w-full p-4 ps-10 text-sm text-gray-900 border  rounded-lg bg-gray-50 focus:ring-black focus:border-black ${
-              v$.dateEvent.$error ? 'border-red-600' : 'border-gray-300'
-            }`"
-          />
-        </div>
-        <div class="flex gap-5 justify-around mt-5">
-          <button
-            type="button"
-            @click="closeEventModal"
-            class="w-full px-5 py-2 text-white rounded-lg bg-primary-gray-300"
-          >
-            Cancelar
-          </button>
-          <button
-            :disabled="v$.$invalid"
-            class="w-full px-5 py-2 text-white rounded-lg bg-primary-violet-100 disabled:bg-opacity-50"
-          >
-            Crear
-          </button>
-        </div>
-      </form>
+      <template v-if="!loading">
+        <form @submit.prevent="submitEvent">
+          <div class="mb-5">
+            <label for="eventInput" class="text-sm ml-1 text-gray-500"
+              >Evento :
+            </label>
+            <input
+              id="eventInput"
+              type="text"
+              v-model="formEvent.name"
+              :class="`block w-full p-4 ps-10 text-sm text-gray-900 border  rounded-lg bg-gray-50 focus:ring-black focus:border-black ${
+                v$.name.$error ? 'border-red-600' : 'border-gray-300'
+              }`"
+              placeholder="Nombre del evento"
+            />
+          </div>
+          <div class="">
+            <label for="eventInput" class="text-sm ml-1 text-gray-500"
+              >Fecha :
+            </label>
+            <input
+              type="date"
+              v-model="formEvent.dateEvent"
+              :class="`block w-full p-4 ps-10 text-sm text-gray-900 border  rounded-lg bg-gray-50 focus:ring-black focus:border-black ${
+                v$.dateEvent.$error ? 'border-red-600' : 'border-gray-300'
+              }`"
+            />
+          </div>
+          <div class="flex gap-5 justify-around mt-5">
+            <button
+              type="button"
+              @click="closeEventModal"
+              class="w-full px-5 py-2 text-white rounded-lg bg-primary-gray-300"
+            >
+              Cancelar
+            </button>
+            <button
+              :disabled="v$.$invalid"
+              class="w-full px-5 py-2 text-white rounded-lg bg-primary-violet-100 disabled:bg-opacity-50"
+            >
+              Crear
+            </button>
+          </div>
+        </form>
+      </template>
+      <template v-else>Cargando</template>
     </template>
   </UModal>
 
@@ -305,58 +357,59 @@ onMounted(async () => {
     :model-value="isOpenClientModal"
     @on-close="closeClientModal"
     @update:model-value="closeClientModal"
-    title="Agregar Asistente"
+    :title="!loading ? 'Agregar Asistente' : ''"
   >
     <template v-slot:main>
-      <form action="">
-        <div class="mb-5">
-          <label for="docInput" class="text-sm ml-1 text-gray-500"
-            >Nro Documento :
-          </label>
-          <input
-            id="docInput"
-            type="text"
-            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
-            placeholder="Nombre del evento"
-          />
-        </div>
-        <div class="mb-5">
-          <label for="docFullName" class="text-sm ml-1 text-gray-500"
-            >Nombres:
-          </label>
-          <input
-            id="docFullName"
-            type="text"
-            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
-            placeholder="Nombre del evento"
-          />
-        </div>
-        <!-- <div class="">
-          <label for="eventInput" class="text-sm ml-1 text-gray-500"
-            >Evento :
-          </label>
-          <select
-            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
-          >
-            <option selected disabled>Seleccione ...</option>
-            <option value="US">United States</option>
-          </select>
-        </div> -->
-        <div class="flex gap-5 justify-around mt-5">
-          <button
-            type="button"
-            @click="closeClientModal"
-            class="w-full px-5 py-2 text-white rounded-lg bg-primary-gray-300"
-          >
-            Cancelar
-          </button>
-          <button
-            class="w-full px-5 py-2 text-white rounded-lg bg-primary-violet-100"
-          >
-            Crear
-          </button>
-        </div>
-      </form>
+      <template v-if="!loading">
+        <form @submit.prevent="submitClient">
+          <div class="mb-5">
+            <label for="docInput" class="text-sm ml-1 text-gray-500"
+              >Nro Documento :
+            </label>
+            <input
+              id="docInput"
+              type="text"
+              :class="`block w-full p-4 ps-10 text-sm text-gray-900 border  rounded-lg bg-gray-50 focus:ring-black focus:border-black ${
+                client$.numberDocument.$error
+                  ? 'border-red-600'
+                  : 'border-gray-300'
+              }`"
+              placeholder="Nombre del evento"
+              v-model="formClient.numberDocument"
+            />
+          </div>
+          <div class="mb-5">
+            <label for="docFullName" class="text-sm ml-1 text-gray-500"
+              >Nombres:
+            </label>
+            <input
+              id="docFullName"
+              type="text"
+              :class="`block w-full p-4 ps-10 text-sm text-gray-900 border  rounded-lg bg-gray-50 focus:ring-black focus:border-black ${
+                client$.name.$error ? 'border-red-600' : 'border-gray-300'
+              }`"
+              placeholder="Nombre del evento"
+              v-model="formClient.name"
+            />
+          </div>
+          <div class="flex gap-5 justify-around mt-5">
+            <button
+              type="button"
+              @click="closeClientModal"
+              class="w-full px-5 py-2 text-white rounded-lg bg-primary-gray-300"
+            >
+              Cancelar
+            </button>
+            <button
+              :disabled="client$.$invalid"
+              class="w-full px-5 py-2 text-white rounded-lg bg-primary-violet-100 disabled:bg-opacity-50"
+            >
+              Crear
+            </button>
+          </div>
+        </form>
+      </template>
+      <template v-else>Cargando</template>
     </template>
   </UModal>
 </template>

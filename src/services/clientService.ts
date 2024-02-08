@@ -2,10 +2,17 @@ import axios, { AxiosResponse } from "axios"
 import { ClientResponse } from "../types/client.response"
 import { QrSearchResponse } from "../types/qrsearch.response"
 import { AssistanceResponse } from "../types/assistance.response"
+import { ClientRequest } from "../types/client.request"
 
 export const CounterRequestApi = axios.create({
   baseURL: "https://360-backend-psi.vercel.app",
 })
+
+export const createClient = (data: ClientRequest): Promise<ClientResponse> => {
+  return CounterRequestApi.post("/clients", data).then(
+    (response: AxiosResponse<ClientResponse>) => response.data
+  )
+}
 
 export const getClientsByEventIdService = (
   idEvent: Number

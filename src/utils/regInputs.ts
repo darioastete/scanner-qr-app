@@ -6,4 +6,8 @@ const onlyText = (): RegExp => {
   return /^[a-zA-Z\s]+$/
 }
 
-export { formatDate, onlyText }
+const onlyNumber = (): RegExp => {
+  return /^[0-9]+$/
+}
+
+export { formatDate, onlyText, onlyNumber }
