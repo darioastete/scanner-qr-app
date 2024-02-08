@@ -3,6 +3,7 @@ import { ClientResponse } from "../types/client.response"
 import { QrSearchResponse } from "../types/qrsearch.response"
 import { AssistanceResponse } from "../types/assistance.response"
 import { ClientRequest } from "../types/client.request"
+import { ClientDeleteResponse } from "../types/client.delete.response"
 
 export const CounterRequestApi = axios.create({
   baseURL: "https://360-backend-psi.vercel.app",
@@ -11,6 +12,12 @@ export const CounterRequestApi = axios.create({
 export const createClient = (data: ClientRequest): Promise<ClientResponse> => {
   return CounterRequestApi.post("/clients", data).then(
     (response: AxiosResponse<ClientResponse>) => response.data
+  )
+}
+
+export const deleteClient = (id: Number): Promise<ClientDeleteResponse> => {
+  return CounterRequestApi.delete(`/clients/${id}`).then(
+    (response: AxiosResponse<ClientDeleteResponse>) => response.data
   )
 }
 

@@ -11,6 +11,7 @@ import { formatDate, onlyText, onlyNumber } from "../utils/regInputs"
 import { createEvent, getAll } from "../services/eventService"
 import {
   createClient,
+  deleteClient,
   getClientsByEventIdService,
 } from "../services/clientService"
 import { EventRequest } from "../types/event.request"
@@ -92,10 +93,6 @@ const closeSaleOptionsModal = () => {
   isOpenSaleOptionsModal.value = false
 }
 
-const deleteClientList = () => {
-  closeSaleOptionsModal()
-}
-
 const closeEventModal = () => {
   isOpenEventModal.value = false
 }
@@ -142,6 +139,14 @@ const getClients = async () => {
   const clients = await getClientsByEventIdService(eventSelected.value)
   filteredList.value = clients
   clientList.value = clients
+}
+
+const deleteClientList = async () => {
+  loading.value = true
+  await deleteClient(clientSelect.value.id)
+  await getClients()
+  loading.value = false
+  closeSaleOptionsModal()
 }
 
 onMounted(async () => {
@@ -241,10 +246,12 @@ onMounted(async () => {
                 >{{ !row.confirmAssistance ? "Válido" : "Usado" }}</span
               >
             </td>
+
             <td class="px-6 py-4">
               <div class="flex">
                 <QrGenerate :id="row.qrEncrypted" :name="row.name" />
                 <button
+                  v-if="!row.confirmAssistance"
                   class="bg-primary-red-300 p-3"
                   @click="openSaleOptionsModal(row)"
                 >
