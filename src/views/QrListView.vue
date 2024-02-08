@@ -94,6 +94,7 @@ const openClientModal = () => {
 
 const submitEvent = async () => {
   await createEvent(formEvent.value)
+  console.log("esta creandose el evento")
 }
 
 onMounted(async () => {
@@ -235,7 +236,7 @@ onMounted(async () => {
     title="Crear Evento"
   >
     <template v-slot:main>
-      <form @submit="submitEvent">
+      <form @submit.prevent="submitEvent">
         <div class="mb-5">
           <label for="eventInput" class="text-sm ml-1 text-gray-500"
             >Evento :
