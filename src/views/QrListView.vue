@@ -9,23 +9,16 @@ import { required, helpers, minLength } from "@vuelidate/validators"
 import { useVuelidate } from "@vuelidate/core"
 import { formatDate, onlyText } from "../utils/regInputs"
 import { createEvent, getAll } from "../services/eventService"
+import { getClientsByEventIdService } from "../services/clientService"
 import { EventRequest } from "../types/event.request"
+import { ClientResponse } from "../types/client.response"
 
-const clientList = [
-  { id: "1", fullName: "Raleway", doc: "1234567", status: true },
-  { id: "12", fullName: "Juan", doc: "12345267", status: true },
-  { id: "13", fullName: "María", doc: "12345267", status: false },
-  { id: "14", fullName: "Carlos", doc: "12345267", status: false },
-  { id: "15", fullName: "Laura", doc: "12345673", status: false },
-  { id: "16", fullName: "Pedro", doc: "123456723", status: true },
-  { id: "17", fullName: "Isabel", doc: "1234567232", status: false },
-  { id: "18", fullName: "Sergio", doc: "123456237", status: false },
-  { id: "19", fullName: "Elena", doc: "1234567222", status: false },
-  { id: "10", fullName: "Miguel", doc: "1234567111", status: false },
-]
+let clientList = ref<ClientResponse[] | []>([])
 
-let filteredList = ref(clientList)
+let filteredList = ref<ClientResponse[] | []>([])
+let eventList = ref()
 let clientSelect = ref()
+let eventSelected = ref<Number>(0)
 
 const regexDate = helpers.regex(formatDate())
 const regexText = helpers.regex(onlyText())
@@ -53,8 +46,8 @@ const v$ = useVuelidate(rules, formEvent)
 
 const handleOnInput = ($event: any) => {
   const searchValue = $event.target.value.toLowerCase()
-  filteredList.value = clientList.filter((i: any) =>
-    i.fullName.toLowerCase().includes(searchValue)
+  filteredList.value = clientList.value.filter((i: ClientResponse) =>
+    i.name.toLowerCase().includes(searchValue)
   )
 }
 
@@ -72,7 +65,6 @@ const closeSaleOptionsModal = () => {
 }
 
 const deleteClientList = () => {
-  // console.log("se elimino", clientSelect.value.doc)
   closeSaleOptionsModal()
 }
 
@@ -94,12 +86,22 @@ const openClientModal = () => {
 
 const submitEvent = async () => {
   await createEvent(formEvent.value)
-  console.log("esta creandose el evento")
+  closeEventModal()
+  formEvent.value = {
+    name: "",
+    dateEvent: "",
+  }
+}
+
+const getClients = async () => {
+  const clients = await getClientsByEventIdService(eventSelected.value)
+  filteredList.value = clients
+  clientList.value = clients
 }
 
 onMounted(async () => {
   const response = await getAll()
-  console.log(response)
+  eventList.value = response
 })
 </script>
 <template>
@@ -120,7 +122,21 @@ onMounted(async () => {
         required
       />
     </div>
-    <div class="flex gap-3 pr-3">
+    <div class="flex gap-2 pr-3">
+      <select
+        class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
+        @change="getClients"
+        v-model="eventSelected"
+      >
+        <option selected disabled>Seleccione ...</option>
+        <option
+          v-for="(event, index) in eventList"
+          :key="index"
+          :value="event.id"
+        >
+          {{ event.name }}
+        </option>
+      </select>
       <button
         @click="openEventModal"
         class="flex items-center gap-2 bg-primary-violet-100 text-white py-3 px-5 rounded-xl"
@@ -162,7 +178,7 @@ onMounted(async () => {
               scope="row"
               class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
             >
-              {{ row.fullName }}
+              {{ row.name }}
             </th>
             <td
               :class="`px-6 py-4 text-center ${
@@ -178,7 +194,7 @@ onMounted(async () => {
             </td>
             <td class="px-6 py-4">
               <div class="flex">
-                <QrGenerate :full-name="row.fullName" />
+                <QrGenerate :id="row.qrEncrypted" :name="row.name" />
                 <button
                   class="bg-primary-red-300 p-3"
                   @click="openSaleOptionsModal(row)"
@@ -301,7 +317,18 @@ onMounted(async () => {
             placeholder="Nombre del evento"
           />
         </div>
-        <div class="">
+        <div class="mb-5">
+          <label for="docFullName" class="text-sm ml-1 text-gray-500"
+            >Nombres:
+          </label>
+          <input
+            id="docFullName"
+            type="text"
+            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
+            placeholder="Nombre del evento"
+          />
+        </div>
+        <!-- <div class="">
           <label for="eventInput" class="text-sm ml-1 text-gray-500"
             >Evento :
           </label>
@@ -311,7 +338,7 @@ onMounted(async () => {
             <option selected disabled>Seleccione ...</option>
             <option value="US">United States</option>
           </select>
-        </div>
+        </div> -->
         <div class="flex gap-5 justify-around mt-5">
           <button
             type="button"

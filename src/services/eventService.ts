@@ -3,10 +3,10 @@ import { EventRequest } from "../types/event.request"
 import { EventResponse } from "../types/event.response"
 
 export const CounterRequestApi = axios.create({
-  baseURL: "https://door-eta.vercel.app",
+  baseURL: "https://360-backend-psi.vercel.app",
 })
 
-export const createEvent = (data: EventRequest): Promise<EventResponse> => {
+export const createEvent = (data: EventRequest) => {
   return CounterRequestApi.post("/events", data).then(
     (response: AxiosResponse<EventResponse>) => response.data
   )

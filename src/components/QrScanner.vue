@@ -3,13 +3,13 @@ import { ref } from "vue"
 import { QrcodeStream } from "vue-qrcode-reader"
 let errorMessage = ref()
 let codeDetected = ref()
+const emit = defineEmits(["onScan"])
 
-const onReady = (capabilities: any) => {
-  console.log(capabilities)
-}
+// const onReady = (capabilities: any) => {
+// }
 const onDetect = (detectedCodes: any) => {
-  codeDetected.value = JSON.stringify(detectedCodes[0].rawValue)
-  alert(codeDetected.value)
+  codeDetected.value = detectedCodes[0].rawValue
+  emit("onScan", codeDetected.value)
 }
 
 const onError = (error: any) => {
@@ -29,17 +29,14 @@ const onError = (error: any) => {
   }
 }
 
-defineProps<{ msg: string }>()
+// defineProps<{ msg: string }>()
 </script>
 
 <template>
-  <!-- <h1>{{ msg }}</h1>
-  <h1>Este es el error: {{ errorMessage }}</h1>
-  <h2><strong>QR VALUE: </strong>{{ codeDetected }}</h2> -->
   <qrcode-stream
     :formats="['qr_code', 'code_128']"
-    @camera-on="onReady"
     @detect="onDetect"
     @error="onError"
   ></qrcode-stream>
 </template>
+<!-- @camera-on="onReady" -->

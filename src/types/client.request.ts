@@ -1,1 +1,5 @@
-export interface ClientRequest {}
+export interface ClientRequest {
+  name: string
+  numberDocument: string
+  eventId: number
+}

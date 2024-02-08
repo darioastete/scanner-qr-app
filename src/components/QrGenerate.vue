@@ -4,10 +4,9 @@ import vueQr from "vue-qr/src/packages/vue-qr.vue"
 import src2 from "../assets/vue.svg"
 import { ref } from "vue"
 import iQR from "../assets/icons/qr-white.svg"
-const { fullName } = defineProps<{
-  fullName?: string
-  id?: number
-  doc?: number
+const { id, name } = defineProps<{
+  id?: string
+  name?: string
 }>()
 const qrDownload = ref()
 const qrImg64 = (dataUrl: any, _id: any) => {
@@ -17,7 +16,7 @@ const qrImg64 = (dataUrl: any, _id: any) => {
 const descargarImagen = () => {
   const link = document.createElement("a")
   link.href = qrDownload.value
-  link.download = fullName || "defaultClient" // Nombre de archivo de descarga
+  link.download = name || "defaultClient" // Nombre de archivo de descarga
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
@@ -28,7 +27,7 @@ const descargarImagen = () => {
     <vue-qr
       v-show="false"
       :logoSrc="src2"
-      :text="fullName"
+      :text="id"
       :callback="qrImg64"
       :qid="'testid'"
       :size="500"
