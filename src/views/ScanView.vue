@@ -73,7 +73,7 @@ onMounted(async () => {
           >Seleccione el Evento</label
         >
         <select
-          class="block w-full p-4 ps-10 text-sm text-black border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
+          class="block w-full p-4 text-sm text-black border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
           v-model="eventId"
         >
           <option value="0" selected disabled>Seleccione ...</option>
@@ -82,7 +82,7 @@ onMounted(async () => {
             :key="index"
             :value="event.id"
           >
-            {{ event.name }}
+            {{ event.name }} - {{ event.dateEvent }}
           </option>
         </select>
       </div>

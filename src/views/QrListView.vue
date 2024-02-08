@@ -174,7 +174,7 @@ onMounted(async () => {
     </div>
     <div class="flex gap-2 pr-3">
       <select
-        class="block w-60 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
+        class="block w-60 p-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-black focus:border-black"
         @change="getClients"
         placeholder="Seleccione..."
         v-model="eventSelected"
@@ -185,7 +185,7 @@ onMounted(async () => {
           :key="index"
           :value="event.id"
         >
-          {{ event.name }}
+          {{ event.name }} - {{ event.dateEvent }}
         </option>
       </select>
       <button
