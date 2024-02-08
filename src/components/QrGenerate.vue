@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // @ts-ignore
 import vueQr from "vue-qr/src/packages/vue-qr.vue"
-import src2 from "../assets/vue.svg"
+// import src2 from "../assets/vue.svg"
 import { ref } from "vue"
 import iQR from "../assets/icons/qr-white.svg"
 const { id, name } = defineProps<{
@@ -24,9 +24,9 @@ const descargarImagen = () => {
 </script>
 <template>
   <div class="flex flex-col">
+    <!-- :logoSrc="src2" -->
     <vue-qr
       v-show="false"
-      :logoSrc="src2"
       :text="id"
       :callback="qrImg64"
       :qid="'testid'"
