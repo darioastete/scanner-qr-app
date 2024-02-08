@@ -302,7 +302,7 @@ onMounted(async () => {
           </button>
         </div>
       </template>
-      <template v-else> Cargando... </template>
+      <template v-else> <span class="text-center">Cargando... </span></template>
     </template>
   </UModal>
   <UModal
@@ -357,7 +357,7 @@ onMounted(async () => {
           </div>
         </form>
       </template>
-      <template v-else>Cargando</template>
+      <template v-else><span class="text-center">Cargando ...</span></template>
     </template>
   </UModal>
 
@@ -417,7 +417,7 @@ onMounted(async () => {
           </div>
         </form>
       </template>
-      <template v-else>Cargando</template>
+      <template v-else><span class="text-center">Cargando ...</span></template>
     </template>
   </UModal>
 </template>
